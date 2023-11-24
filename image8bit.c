@@ -705,7 +705,7 @@ void ImageBlur(Image img, int dx, int dy) { ///
     }
 
     // Copy the blurred image back to the original
-    ImageCopy(temp, img);
+    //ImageCopy(temp, img);
 
     // Free the temporary image
     ImageDestroy(temp);
