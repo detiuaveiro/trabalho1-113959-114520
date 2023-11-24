@@ -436,7 +436,7 @@ void ImageBrighten(Image img, double factor) { ///
     // Insert your code here!
 
     for (int i = 0; i < img->width * img->height; i++) {
-        double brightened = img->pixel[i] * factor;
+        double brightened = (img->pixel[i] * factor) + 0.5;
         img->pixel[i] = (brightened > PixMax) ? PixMax : (uint8)brightened;
     }
 }
@@ -590,7 +590,7 @@ void ImageBlend(Image img1, int x, int y, Image img2, double alpha) { ///
         for (int i = 0; i < img2->width; i++) {
             uint8_t pixel1 = ImageGetPixel(img1, x + i, y + j);
             uint8_t pixel2 = ImageGetPixel(img2, i, j);
-            uint8_t blended = (uint8_t)(alpha * pixel2 + (1 - alpha) * pixel1);
+            uint8_t blended = (uint8_t)((alpha * pixel2 + (1 - alpha) * pixel1) + 0.5);
             ImageSetPixel(img1, x + i, y + j, blended);
         }
     }
