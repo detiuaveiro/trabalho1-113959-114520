@@ -706,7 +706,7 @@ void ImageBlur(Image img, int dx, int dy) {
 
             // Set the blurred pixel value
             if (count > 0) {
-                int mean = sum / count;
+                int mean = (sum / count) + 0.5;
                 ImageSetPixel(blurred, x, y, (uint8)mean);
             }
         }
