@@ -707,7 +707,7 @@ void ImageBlur(Image img, int dx, int dy) {
             ImageSetPixel(temp, x, y, blurredPixel);
 
             // Debug print
-            printf("(%d, %d) - Original: %d, Blurred: %d\n", x, y, ImageGetPixel(img, x, y), blurredPixel);
+            //printf("(%d, %d) - Original: %d, Blurred: %d\n", x, y, ImageGetPixel(img, x, y), blurredPixel);
         }
     }
 
