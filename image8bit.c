@@ -688,8 +688,8 @@ void ImageBlur(Image img, int dx, int dy) { ///
             int sum = 0;
             int count = 0;
 
-            for (int j = -1; j <= 1; j++) {
-                for (int i = -1; i <= 1; i++) {
+            for (int j = -dy; j <= dy; j++) {
+                for (int i = -dx; i <= dx; i++) {
                     int nx = x + i;
                     int ny = y + j;
                     
@@ -701,6 +701,13 @@ void ImageBlur(Image img, int dx, int dy) { ///
             }
             
             ImageSetPixel(temp, x, y, sum / count);
+        }
+    }
+        
+    // Copy values from temp back to img
+    for (int y = 0; y < img->height; y++) {
+        for (int x = 0; x < img->width; x++) {
+            ImageSetPixel(img, x, y, ImageGetPixel(temp, x, y));
         }
     }
         
