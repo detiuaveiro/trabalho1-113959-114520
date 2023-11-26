@@ -408,15 +408,12 @@ void ImageSetPixel(Image img, int x, int y, uint8 level) { ///
 /// Transform image to  image.
 /// This transforms dark pixels to light pixels and vice-versa,
 /// resulting in a "photographic negative" effect.
-void ImageNegative(Image *img) {
-    int width = img->width;
-    int height = img->height;
+void ImageNegative(Image img) { ///
+    assert (img != NULL);
+    // Insert your code here!
 
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            // Use 255 (white) as the maximum pixel value
-            img->pixel[i * width + j] = 255 - img->pixel[i * width + j];
-        }
+    for (int i = 0; i < img->width * img->height; i++) {
+        img->pixel[i] = PixMax - img->pixel[i];
     }
 }
 
