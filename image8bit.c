@@ -680,41 +680,49 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 /// Each pixel is substituted by the mean of the pixels in the rectangle
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
-void ImageBlur(Image *img, int radius) {
-    int width = img->width;
-    int height = img->height;
+void ImageBlur(Image img, int dx, int dy) {
+    assert(img != NULL);
+    assert(dx >= 0 && dy >= 0);
 
-    Image *temp = ImageCreate(width, height);
+    // Create a temporary image to store the blurred result
+    Image blurred = ImageCreate(img->width, img->height, img->maxval);
 
-    int i, j, m, n;
-    int sum, count;
+    for (int y = 0; y < img->height; y++) {
+        for (int x = 0; x < img->width; x++) {
+            // Calculate the mean value in the neighborhood
+            int sum = 0;
+            int count = 0;
 
-    for (i = 0; i < height; i++) {
-        for (j = 0; j < width; j++) {
-            sum = 0;
-            count = 0;
+            for (int j = -dy; j <= dy; j++) {
+                for (int i = -dx; i <= dx; i++) {
+                    int nx = x + i;
+                    int ny = y + j;
 
-            for (m = -radius; m <= radius; m++) {
-                for (n = -radius; n <= radius; n++) {
-                    int x = j + n;
-                    int y = i + m;
-
-                    if (x >= 0 && x < width && y >= 0 && y < height) {
-                        sum += img->pixel[y * width + x];
+                    // Check if the neighbor is within bounds
+                    if (ImageValidPos(img, nx, ny)) {
+                        sum += ImageGetPixel(img, nx, ny);
                         count++;
                     }
                 }
             }
 
-            temp->pixel[i * width + j] = (uint8)(sum / count);
+            // Set the blurred pixel value
+            if (count > 0) {
+                int mean = sum / count;
+                ImageSetPixel(blurred, x, y, (uint8)mean);
+            }
         }
     }
 
-    // Copy the result back to the original image
-    memcpy(img->pixel, temp->pixel, sizeof(uint8) * width * height);
+    // Copy the blurred image back to the original image
+    for (int y = 0; y < img->height; y++) {
+        for (int x = 0; x < img->width; x++) {
+            ImageSetPixel(img, x, y, ImageGetPixel(blurred, x, y));
+        }
+    }
 
-    // Free the temporary image
-    ImageDestroy(temp);
+    // Destroy the temporary image
+    ImageDestroy(&blurred);
 }
 
 
