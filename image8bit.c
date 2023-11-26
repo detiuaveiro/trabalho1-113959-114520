@@ -690,8 +690,8 @@ void ImageBlur(Image img, int dx, int dy) {
     for (int y = 0; y < img->height; y++) {
         for (int x = 0; x < img->width; x++) {
             // Calculate the mean value in the neighborhood
-            int sum = 0;
-            int count = 0;
+            unsigned long sum = 0;
+            unsigned long count = 0;
 
             for (int j = -dy; j <= dy; j++) {
                 for (int i = -dx; i <= dx; i++) {
@@ -724,5 +724,3 @@ void ImageBlur(Image img, int dx, int dy) {
     // Destroy the temporary image
     ImageDestroy(&blurred);
 }
-
-
