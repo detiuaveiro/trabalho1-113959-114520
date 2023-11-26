@@ -680,16 +680,14 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 /// The image is changed in-place.
 void ImageBlur(Image img, int dx, int dy) {
     assert(img != NULL);
+    assert(dx >= 0 && dy >= 0);
 
-    Image temp = ImageCreate(img->width, img->height, img->maxval);
-
-    if (temp == NULL) {
-        fprintf(stderr, "Error: Memory allocation for temporary image failed\n");
-        return;
-    }
+    // Create a temporary image to store the blurred result
+    Image blurred = ImageCreate(img->width, img->height, img->maxval);
 
     for (int y = 0; y < img->height; y++) {
         for (int x = 0; x < img->width; x++) {
+            // Calculate the mean value in the neighborhood
             int sum = 0;
             int count = 0;
 
@@ -698,28 +696,30 @@ void ImageBlur(Image img, int dx, int dy) {
                     int nx = x + i;
                     int ny = y + j;
 
-                    if (ImageValidRect(img, nx, ny, 1, 1)) {
+                    // Check if the neighbor is within bounds
+                    if (ImageValidPos(img, nx, ny)) {
                         sum += ImageGetPixel(img, nx, ny);
                         count++;
                     }
                 }
             }
-            
-            int blurredPixel = sum / count;
-            ImageSetPixel(temp, x, y, blurredPixel);
 
-            // Debug print
-            //printf("(%d, %d) - Original: %d, Blurred: %d\n", x, y, ImageGetPixel(img, x, y), blurredPixel);
+            // Set the blurred pixel value
+            if (count > 0) {
+                int mean = sum / count;
+                ImageSetPixel(blurred, x, y, mean);
+            }
         }
     }
 
-    // Copy values from temp back to img
+    // Copy the blurred image back to the original image
     for (int y = 0; y < img->height; y++) {
         for (int x = 0; x < img->width; x++) {
-            ImageSetPixel(img, x, y, ImageGetPixel(temp, x, y));
+            ImageSetPixel(img, x, y, ImageGetPixel(blurred, x, y));
         }
     }
 
-    // Free the temporary image
-    ImageDestroy(&temp);
+    // Destroy the temporary image
+    ImageDestroy(&blurred);
 }
+
