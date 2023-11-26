@@ -10,11 +10,11 @@
 /// 2013, 2023
 
 // Student authors (fill in below):
-// NMec: 114520  Name:José Oliveira
-// NMec:   Name:
+// NMec: 114520  Name: José Oliveira
+// NMec: 113959  Name: Rafael Reis
 // 
 // 
-// Date:
+// Date: 26/11/2023
 //
 
 #include "image8bit.h"
