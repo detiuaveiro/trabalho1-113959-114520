@@ -692,30 +692,15 @@ void ImageBlur(Image img, int dx, int dy) { ///
                 for (int i = -1; i <= 1; i++) {
                     int nx = x + i;
                     int ny = y + j;
-
-                    if (ImageValidPos(img, nx, ny)) {
+                    
+                    if (ImageValidRect(img, nx, ny, 1, 1)) {
                         sum += ImageGetPixel(img, nx, ny);
                         count++;
-                    //if (ImageValidRect(img, nx, ny, 1, 1)) {
-                    //    sum += ImageGetPixel(img, nx, ny);
-                    //    count++;
                     }
                 }
             }
             
-            // Calculate the mean and set the pixel in the temporary image
-            if (count > 0) {
-                ImageSetPixel(temp, x, y, sum / count);
-            } else {
-                // If count is zero, set the pixel to the original value
-                ImageSetPixel(temp, x, y, ImageGetPixel(img, x, y));
-        }
-    }
-
-    // Copy the blurred image back to the original
-    for (int j = 0; j < img->height; j++) {
-        for (int i = 0; i < img->width; i++) {
-            ImageSetPixel(img, i, j, ImageGetPixel(temp, i, j));
+            ImageSetPixel(temp, x, y, sum / count);
         }
     }
         
