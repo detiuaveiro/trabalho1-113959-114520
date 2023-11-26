@@ -707,7 +707,7 @@ void ImageBlur(Image img, int dx, int dy) {
             // Set the blurred pixel value
             if (count > 0) {
                 int mean = sum / count;
-                ImageSetPixel(blurred, x, y, mean);
+                ImageSetPixel(blurred, x, y, (uint8)mean);
             }
         }
     }
@@ -722,4 +722,3 @@ void ImageBlur(Image img, int dx, int dy) {
     // Destroy the temporary image
     ImageDestroy(&blurred);
 }
-
