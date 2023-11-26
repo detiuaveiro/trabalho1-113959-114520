@@ -678,52 +678,48 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 /// Each pixel is substituted by the mean of the pixels in the rectangle
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
-void ImageBlur(struct Image8bit* img, int kernelWidth, int kernelHeight) {
-    int i, j, x, y;
-    uint32_t sum;
+void ImageBlur(Image img, int dx, int dy) {
+    assert(img != NULL);
 
-    if (kernelWidth % 2 == 0 || kernelHeight % 2 == 0) {
-        // O kernel deve ter uma largura e altura ímpares.
-        // Você pode lidar com tamanhos pares se desejar, mas isso exigiria algumas alterações adicionais.
+    Image temp = ImageCreate(img->width, img->height, img->maxval);
+
+    if (temp == NULL) {
+        fprintf(stderr, "Error: Memory allocation for temporary image failed\n");
         return;
     }
 
-    // Criar uma cópia temporária da imagem para cálculos
-    struct Image8bit tempImg;
-    ImageCreate(&tempImg, img->width, img->height);
+    for (int y = 0; y < img->height; y++) {
+        for (int x = 0; x < img->width; x++) {
+            int sum = 0;
+            int count = 0;
 
-    // Iterar sobre cada pixel na imagem
-    for (i = 0; i < img->height; i++) {
-        for (j = 0; j < img->width; j++) {
-            sum = 0;
+            for (int j = -dy; j <= dy; j++) {
+                for (int i = -dx; i <= dx; i++) {
+                    int nx = x + i;
+                    int ny = y + j;
 
-            // Iterar sobre a vizinhança do pixel usando o kernel
-            for (x = -kernelWidth / 2; x <= kernelWidth / 2; x++) {
-                for (y = -kernelHeight / 2; y <= kernelHeight / 2; y++) {
-                    // Coordenadas do pixel na imagem original
-                    int imgX = j + x;
-                    int imgY = i + y;
-
-                    // Verificar se as coordenadas estão dentro dos limites da imagem
-                    if (imgX >= 0 && imgX < img->width && imgY >= 0 && imgY < img->height) {
-                        sum += ImageGetPixel(img, imgX, imgY);
+                    if (ImageValidRect(img, nx, ny, 1, 1)) {
+                        sum += ImageGetPixel(img, nx, ny);
+                        count++;
                     }
                 }
             }
+            
+            int blurredPixel = sum / count;
+            ImageSetPixel(temp, x, y, blurredPixel);
 
-            // Calcular o valor médio e definir na imagem temporária
-            uint8_t avg = (uint8_t)(sum / (kernelWidth * kernelHeight));
-            ImageSetPixel(&tempImg, j, i, avg);
+            // Debug print
+            //printf("(%d, %d) - Original: %d, Blurred: %d\n", x, y, ImageGetPixel(img, x, y), blurredPixel);
         }
     }
 
-    // Copiar os valores de pixel da imagem temporária de volta para a imagem original
-    for (i = 0; i < img->height; i++) {
-        for (j = 0; j < img->width; j++) {
-            ImageSetPixel(img, j, i, ImageGetPixel(&tempImg, j, i));
+    // Copy values from temp back to img
+    for (int y = 0; y < img->height; y++) {
+        for (int x = 0; x < img->width; x++) {
+            ImageSetPixel(img, x, y, ImageGetPixel(temp, x, y));
         }
     }
 
-    // Liberar a imagem temporária
-    ImageDestroy(&tempImg);
+    // Free the temporary image
+    ImageDestroy(&temp);
 }
