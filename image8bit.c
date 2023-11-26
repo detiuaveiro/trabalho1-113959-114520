@@ -680,48 +680,23 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
 void ImageBlur(Image img, int dx, int dy) {
-    assert(img != NULL);
-    assert(dx >= 0 && dy >= 0);
+    int x, y, sx, sy;
+    int size = 3;  // Alterado para um filtro de 3x3
 
-    int width = img->width;
-    int height = img->height;
-
-    // Create a temporary image to store the blurred result
-    Image blurred = ImageCreate(width, height, img->maxval);
-
-    // Iterate over each pixel in the image
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
+    for (x = 0; x < img->width; x++) {
+        for (y = 0; y < img->height; y++) {
             int sum = 0;
-            int count = 0;
-
-            // Iterate over the neighborhood of the current pixel
-            for (int j = -dy; j <= dy; j++) {
-                for (int i = -dx; i <= dx; i++) {
-                    int nx = x + i;
-                    int ny = y + j;
-
-                    // Check if the neighboring pixel is within the image bounds
-                    if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+            for (sx = -size/2; sx <= size/2; sx++) {
+                for (sy = -size/2; sy <= size/2; sy++) {
+                    int nx = x + sx;
+                    int ny = y + sy;
+                    if (nx >= 0 && nx < img->width && ny >= 0 && ny < img->height) {
                         sum += ImageGetPixel(img, nx, ny);
-                        count++;
                     }
                 }
             }
-
-            // Calculate the mean and set the pixel in the blurred image
-            int mean = (count > 0) ? (sum / count) : 0;
-            ImageSetPixel(blurred, x, y, mean);
+            ImageSetPixel(img, x, y, sum / (size * size));
         }
     }
-
-    // Copy the blurred image back to the original image
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            ImageSetPixel(img, x, y, ImageGetPixel(blurred, x, y));
-        }
-    }
-
-    // Destroy the temporary image
-    ImageDestroy(&blurred);
 }
+
