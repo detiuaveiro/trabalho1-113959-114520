@@ -702,8 +702,12 @@ void ImageBlur(Image img, int dx, int dy) {
                     }
                 }
             }
+            
+            int blurredPixel = sum / count;
+            ImageSetPixel(temp, x, y, blurredPixel);
 
-            ImageSetPixel(temp, x, y, sum / count);
+            // Debug print
+            printf("(%d, %d) - Original: %d, Blurred: %d\n", x, y, ImageGetPixel(img, x, y), blurredPixel);
         }
     }
 
