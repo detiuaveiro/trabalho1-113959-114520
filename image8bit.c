@@ -10,8 +10,8 @@
 /// 2013, 2023
 
 // Student authors (fill in below):
-// NMec:  Name:
-// 
+// NMec: 114520  Name:José Oliveira
+// NMec:   Name:
 // 
 // 
 // Date:
@@ -676,48 +676,50 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 /// Each pixel is substituted by the mean of the pixels in the rectangle
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
-void ImageBlur(Image img, int dx, int dy) {
-    assert(img != NULL);
-
-    Image temp = ImageCreate(img->width, img->height, img->maxval);
-
-    if (temp == NULL) {
-        fprintf(stderr, "Error: Memory allocation for temporary image failed\n");
-        return;
+void ImageBlur(Image* img, int kernel_width, int kernel_height) {
+    // Verifica se a imagem é válida
+    if (img == NULL || img->data == NULL) {
+        fprintf(stderr, "Error: invalid image.\n");
+        exit(EXIT_FAILURE);
     }
 
-    for (int y = 0; y < img->height; y++) {
-        for (int x = 0; x < img->width; x++) {
-            int sum = 0;
-            int count = 0;
+    // Verifica se as dimensões do kernel são ímpares
+    if (kernel_width % 2 == 0 || kernel_height % 2 == 0) {
+        fprintf(stderr, "Error: kernel dimensions must be odd.\n");
+        exit(EXIT_FAILURE);
+    }
 
-            for (int j = -dy; j <= dy; j++) {
-                for (int i = -dx; i <= dx; i++) {
-                    int nx = x + i;
-                    int ny = y + j;
+    int i, j, m, n;
+    int sum, count;
 
-                    if (ImageValidRect(img, nx, ny, 1, 1)) {
-                        sum += ImageGetPixel(img, nx, ny);
-                        count++;
+    // Cria uma cópia temporária da imagem
+    Image* temp = CopyImage(img);
+
+    // Percorre cada pixel da imagem
+    for (i = 0; i < img->height; ++i) {
+        for (j = 0; j < img->width; ++j) {
+            sum = 0;
+            count = 0;
+
+            // Percorre os pixels do kernel
+            for (m = -kernel_height / 2; m <= kernel_height / 2; ++m) {
+                for (n = -kernel_width / 2; n <= kernel_width / 2; ++n) {
+                    int x = j + n;
+                    int y = i + m;
+
+                    // Verifica se o pixel está dentro dos limites da imagem
+                    if (x >= 0 && x < img->width && y >= 0 && y < img->height) {
+                        sum += GetPixel(temp, x, y);
+                        ++count;
                     }
                 }
             }
-            
-            int blurredPixel = sum / count;
-            ImageSetPixel(temp, x, y, blurredPixel);
 
-            // Debug print
-            //printf("(%d, %d) - Original: %d, Blurred: %d\n", x, y, ImageGetPixel(img, x, y), blurredPixel);
+            // Calcula a média dos pixels do kernel e define o valor do pixel na imagem original
+            SetPixel(img, j, i, sum / count);
         }
     }
 
-    // Copy values from temp back to img
-    for (int y = 0; y < img->height; y++) {
-        for (int x = 0; x < img->width; x++) {
-            ImageSetPixel(img, x, y, ImageGetPixel(temp, x, y));
-        }
-    }
-
-    // Free the temporary image
-    ImageDestroy(&temp);
+    // Libera a imagem temporária
+    DestroyImage(temp);
 }
