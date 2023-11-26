@@ -405,17 +405,21 @@ void ImageSetPixel(Image img, int x, int y, uint8 level) { ///
 /// They never fail.
 
 
-/// Transform image to negative image.
+/// Transform image to  image.
 /// This transforms dark pixels to light pixels and vice-versa,
 /// resulting in a "photographic negative" effect.
-void ImageNegative(Image img) { ///
-    assert (img != NULL);
-    // Insert your code here!
+void ImageNegative(Image *img) {
+    int width = img->width;
+    int height = img->height;
 
-    for (int i = 0; i < img->width * img->height; i++) {
-        img->pixel[i] = PixMax - img->pixel[i];
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            // Use 255 (white) as the maximum pixel value
+            img->pixel[i * width + j] = 255 - img->pixel[i * width + j];
+        }
     }
 }
+
 
 /// Apply threshold to image.
 /// Transform all pixels with level<thr to black (0) and
@@ -679,24 +683,41 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 /// Each pixel is substituted by the mean of the pixels in the rectangle
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
-void ImageBlur(Image img, int dx, int dy) {
-    int x, y, sx, sy;
-    int size = 3;  // Alterado para um filtro de 3x3
+void ImageBlur(Image *img, int radius) {
+    int width = img->width;
+    int height = img->height;
 
-    for (x = 0; x < img->width; x++) {
-        for (y = 0; y < img->height; y++) {
-            int sum = 0;
-            for (sx = -size/2; sx <= size/2; sx++) {
-                for (sy = -size/2; sy <= size/2; sy++) {
-                    int nx = x + sx;
-                    int ny = y + sy;
-                    if (nx >= 0 && nx < img->width && ny >= 0 && ny < img->height) {
-                        sum += ImageGetPixel(img, nx, ny);
+    Image *temp = ImageCreate(width, height);
+
+    int i, j, m, n;
+    int sum, count;
+
+    for (i = 0; i < height; i++) {
+        for (j = 0; j < width; j++) {
+            sum = 0;
+            count = 0;
+
+            for (m = -radius; m <= radius; m++) {
+                for (n = -radius; n <= radius; n++) {
+                    int x = j + n;
+                    int y = i + m;
+
+                    if (x >= 0 && x < width && y >= 0 && y < height) {
+                        sum += img->pixel[y * width + x];
+                        count++;
                     }
                 }
             }
-            ImageSetPixel(img, x, y, sum / (size * size));
+
+            temp->pixel[i * width + j] = (uint8)(sum / count);
         }
     }
+
+    // Copy the result back to the original image
+    memcpy(img->pixel, temp->pixel, sizeof(uint8) * width * height);
+
+    // Free the temporary image
+    ImageDestroy(temp);
 }
+
 
