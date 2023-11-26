@@ -27,7 +27,6 @@
 #include "instrumentation.h"
 
 #include <stdint.h>
-#include <string.h> 
 
 // The data structure
 //
@@ -405,7 +404,7 @@ void ImageSetPixel(Image img, int x, int y, uint8 level) { ///
 /// They never fail.
 
 
-/// Transform image to  image.
+/// Transform image to negative image.
 /// This transforms dark pixels to light pixels and vice-versa,
 /// resulting in a "photographic negative" effect.
 void ImageNegative(Image img) { ///
@@ -416,7 +415,6 @@ void ImageNegative(Image img) { ///
         img->pixel[i] = PixMax - img->pixel[i];
     }
 }
-
 
 /// Apply threshold to image.
 /// Transform all pixels with level<thr to black (0) and
@@ -690,8 +688,8 @@ void ImageBlur(Image img, int dx, int dy) {
     for (int y = 0; y < img->height; y++) {
         for (int x = 0; x < img->width; x++) {
             // Calculate the mean value in the neighborhood
-            unsigned long sum = 0;
-            unsigned long count = 0;
+            int sum = 0;
+            int count = 0;
 
             for (int j = -dy; j <= dy; j++) {
                 for (int i = -dx; i <= dx; i++) {
