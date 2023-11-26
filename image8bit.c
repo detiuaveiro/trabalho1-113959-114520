@@ -682,44 +682,44 @@ void ImageBlur(Image img, int dx, int dy) {
     assert(img != NULL);
     assert(dx >= 0 && dy >= 0);
 
-    // Cria uma cópia temporária da imagem original para evitar conflitos ao aplicar o blur
-    Image tempImg = ImageCreate(img->width, img->height, img->maxval);
+    int width = img->width;
+    int height = img->height;
 
-    for (int y = 0; y < img->height; y++) {
-        for (int x = 0; x < img->width; x++) {
+    // Create a temporary image to store the blurred result
+    Image blurred = ImageCreate(width, height, img->maxval);
+
+    // Iterate over each pixel in the image
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
             int sum = 0;
             int count = 0;
 
-            // Percorre a vizinhança do pixel
+            // Iterate over the neighborhood of the current pixel
             for (int j = -dy; j <= dy; j++) {
                 for (int i = -dx; i <= dx; i++) {
-                    int newX = x + i;
-                    int newY = y + j;
+                    int nx = x + i;
+                    int ny = y + j;
 
-                    // Verifica se a posição é válida
-                    if (newX >= 0 && newX < img->width && newY >= 0 && newY < img->height) {
-                        sum += ImageGetPixel(img, newX, newY);
+                    // Check if the neighboring pixel is within the image bounds
+                    if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                        sum += ImageGetPixel(img, nx, ny);
                         count++;
                     }
                 }
             }
 
-            // Calcula a média e define o novo valor do pixel na imagem temporária
-            int average = count > 0 ? sum / count : 0;
-            ImageSetPixel(tempImg, x, y, (uint8)average);
+            // Calculate the mean and set the pixel in the blurred image
+            int mean = (count > 0) ? (sum / count) : 0;
+            ImageSetPixel(blurred, x, y, mean);
         }
     }
 
-    // Copia os valores da imagem temporária de volta para a imagem original
-    for (int y = 0; y < img->height; y++) {
-        for (int x = 0; x < img->width; x++) {
-            ImageSetPixel(img, x, y, ImageGetPixel(tempImg, x, y));
+    // Copy the blurred image back to the original image
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            ImageSetPixel(img, x, y, ImageGetPixel(blurred, x, y));
         }
     }
-
-    // Libera a memória da imagem temporária
-    ImageDestroy(&tempImg);
-}
 
     // Destroy the temporary image
     ImageDestroy(&blurred);
