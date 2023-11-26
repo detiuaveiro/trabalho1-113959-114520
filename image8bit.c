@@ -676,12 +676,15 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 /// Each pixel is substituted by the mean of the pixels in the rectangle
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
-void ImageBlur(Image img, int dx, int dy) { ///
-  // Insert your code here!
-
-  assert(img != NULL);
+void ImageBlur(Image img, int dx, int dy) {
+    assert(img != NULL);
 
     Image temp = ImageCreate(img->width, img->height, img->maxval);
+
+    if (temp == NULL) {
+        fprintf(stderr, "Error: Memory allocation for temporary image failed\n");
+        return;
+    }
 
     for (int y = 0; y < img->height; y++) {
         for (int x = 0; x < img->width; x++) {
@@ -692,25 +695,25 @@ void ImageBlur(Image img, int dx, int dy) { ///
                 for (int i = -dx; i <= dx; i++) {
                     int nx = x + i;
                     int ny = y + j;
-                    
+
                     if (ImageValidRect(img, nx, ny, 1, 1)) {
                         sum += ImageGetPixel(img, nx, ny);
                         count++;
                     }
                 }
             }
-            
+
             ImageSetPixel(temp, x, y, sum / count);
         }
     }
-        
+
     // Copy values from temp back to img
     for (int y = 0; y < img->height; y++) {
         for (int x = 0; x < img->width; x++) {
             ImageSetPixel(img, x, y, ImageGetPixel(temp, x, y));
         }
     }
-        
+
     // Free the temporary image
-    ImageDestroy(temp);
+    ImageDestroy(&temp);
 }
